@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Написать Канеки Кену</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --void: #0F0B0C;
+    --card: #171011;
+    --line: #4A2B2E;
+    --bone: #D8D0C2;
+    --ash: #8F847B;
+    --blood: #A5192B;
+    --blood-hi: #E0505F;
+    --accent: var(--bone);
+    --accent-ink: var(--void);
+    color-scheme: dark;
+  }
+  body.play {
+    --accent: var(--blood);
+    --accent-ink: var(--bone);
+  }
+
+  * { box-sizing: border-box; }
+  ::selection { background: var(--blood); color: var(--bone); }
+  html, body { min-height: 100%; }
+  body {
+    margin: 0;
+    font-family: "Cormorant Garamond", "Palatino Linotype", Georgia, serif;
+    font-size: 18px;
+    background-color: var(--void);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56'%3E%3Cpath d='M27 20h2v6h6v2h-6v8h-2v-8h-6v-2h6z' fill='%23D8D0C2' fill-opacity='.05'/%3E%3C/svg%3E");
+    color: var(--bone);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: max(20px, env(safe-area-inset-top)) 16px max(20px, env(safe-area-inset-bottom));
+  }
+
+  .x { display: inline-block; width: 10px; height: 16px; flex: none; color: var(--accent); transition: color .3s; }
+
+  /* ---- card: double frame + corner crosses ---- */
+  .card {
+    position: relative;
+    width: 100%;
+    max-width: 440px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    padding: 40px 26px 28px;
+    transition: border-color .3s;
+  }
+  .card::before {
+    content: "";
+    position: absolute;
+    inset: 6px;
+    border: 1px solid var(--line);
+    pointer-events: none;
+    transition: border-color .3s;
+  }
+  body.play .card, body.play .card::before { border-color: var(--blood); }
+  .corner { position: absolute; opacity: .9; }
+  .corner.tl { top: 14px; left: 14px; }
+  .corner.tr { top: 14px; right: 14px; }
+  .corner.bl { bottom: 14px; left: 14px; }
+  .corner.br { bottom: 14px; right: 14px; }
+
+  h1 {
+    margin: 0;
+    text-align: center;
+    font-weight: 700;
+    font-size: 34px;
+    line-height: 1.05;
+    letter-spacing: .01em;
+    text-wrap: balance;
+  }
+  .rule {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 16px 0 14px;
+  }
+  .rule::before, .rule::after { content: ""; flex: 1; height: 1px; background: var(--line); transition: background .3s; }
+  body.play .rule::before, body.play .rule::after { background: var(--blood); }
+  .sub { margin: 0 0 24px; text-align: center; color: var(--ash); font-size: 18px; line-height: 1.35; }
+
+  /* ---- switch ---- */
+  .switch {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+    height: 54px;
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: 0;
+    background: var(--void);
+    color: var(--ash);
+    font: 600 18px "Cormorant Garamond", Georgia, serif;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: border-color .3s;
+  }
+  body.play .switch { border-color: var(--blood); }
+  .switch .thumb {
+    position: absolute;
+    top: 4px; left: 4px;
+    width: calc(50% - 4px);
+    height: calc(100% - 8px);
+    background: var(--accent);
+    clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 10px 100%, 0 50%);
+    transition: transform .3s cubic-bezier(.6,0,.2,1), background .3s;
+  }
+  .switch[aria-checked="true"] .thumb { transform: translateX(100%); }
+  .switch span { position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; transition: color .25s; }
+  .switch[aria-checked="false"] .lbl-normal,
+  .switch[aria-checked="true"] .lbl-play { color: var(--accent-ink); }
+  .switch:focus-visible, textarea:focus-visible, .chip:focus-visible, .send:focus-visible {
+    outline: 2px solid var(--bone); outline-offset: 3px;
+  }
+
+  /* ---- presets ---- */
+  .presets { display: none; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  body.play .presets { display: flex; }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid var(--blood);
+    border-radius: 0;
+    background: transparent;
+    color: var(--bone);
+    font: 600 17px "Cormorant Garamond", Georgia, serif;
+    padding: 7px 12px 7px 10px;
+    cursor: pointer;
+    transition: background .15s;
+  }
+  .chip .x { width: 7px; height: 11px; color: var(--blood-hi); }
+  .chip:hover { background: rgba(165,25,43,.3); }
+  .chip:active { background: var(--blood); }
+
+  /* ---- input ---- */
+  textarea {
+    display: block;
+    width: 100%;
+    min-height: 108px;
+    margin-top: 16px;
+    padding: 12px 14px;
+    resize: vertical;
+    border: 1px solid var(--line);
+    border-radius: 0;
+    background: var(--void);
+    color: var(--bone);
+    font: 500 18px/1.4 "Cormorant Garamond", Georgia, serif; /* >=16px: iOS не зумит при фокусе */
+    transition: border-color .2s;
+  }
+  textarea::placeholder { color: #6E625A; }
+  textarea:focus { border-color: var(--accent); }
+
+  /* ---- send ---- */
+  .send {
+    width: 100%;
+    height: 54px;
+    margin-top: 14px;
+    border: 1px solid var(--accent);
+    border-radius: 0;
+    background: var(--accent);
+    color: var(--accent-ink);
+    font: 700 19px "Cormorant Garamond", Georgia, serif;
+    letter-spacing: .02em;
+    cursor: pointer;
+    transition: background .3s, color .3s, border-color .3s;
+  }
+  .send:active:not(:disabled) { opacity: .85; }
+  .send:disabled { cursor: not-allowed; background: transparent; border-color: var(--line); color: var(--ash); }
+
+  .status { min-height: 24px; margin: 12px 0 0; text-align: center; font-size: 17px; color: var(--ash); }
+  .status.ok { color: var(--bone); }
+  .status.err { color: var(--blood-hi); }
+
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="cross" viewBox="0 0 10 16"><path d="M4 0h2v4.5h4v2H6V16H4V6.5H0v-2h4z" fill="currentColor"/></symbol>
+  </svg>
+
+  <main class="card">
+    <svg class="x corner tl" aria-hidden="true"><use href="#cross"/></svg>
+    <svg class="x corner tr" aria-hidden="true"><use href="#cross"/></svg>
+    <svg class="x corner bl" aria-hidden="true"><use href="#cross"/></svg>
+    <svg class="x corner br" aria-hidden="true"><use href="#cross"/></svg>
+
+    <h1>Написать Канеки Кену</h1>
+    <div class="rule" aria-hidden="true"><svg class="x"><use href="#cross"/></svg></div>
+    <p class="sub">Сообщение уйдёт ему в Telegram. Можно просто написать или позвать играть.</p>
+
+    <button class="switch" id="mode" type="button" role="switch" aria-checked="false" aria-label="Позвать играть">
+      <i class="thumb"></i>
+      <span class="lbl-normal">Сообщение</span>
+      <span class="lbl-play">Позвать играть</span>
+    </button>
+
+    <div class="presets" id="presets">
+      <button class="chip" type="button"><svg class="x" aria-hidden="true"><use href="#cross"/></svg>Зайди в ДС</button>
+      <button class="chip" type="button"><svg class="x" aria-hidden="true"><use href="#cross"/></svg>Погнали катку</button>
+      <button class="chip" type="button"><svg class="x" aria-hidden="true"><use href="#cross"/></svg>Через 15 минут?</button>
+      <button class="chip" type="button"><svg class="x" aria-hidden="true"><use href="#cross"/></svg>Ты тут?</button>
+    </div>
+
+    <textarea id="text" maxlength="500" aria-label="Текст сообщения" placeholder="Что передать?"></textarea>
+
+    <button class="send" id="send" type="button" disabled>Отправить</button>
+    <p class="status" id="status" role="status" aria-live="polite"></p>
+  </main>
+
+<script>
+  // ============================================================
+  //  НАСТРОЙКИ
+  // ============================================================
+
+  // Токен бота от @BotFather.
+  const BOT_TOKEN = "8567452115:AAFgHTJw5UHLw6bdn2nxKyjN32udGRV1Q28";
+
+  // ID чата, куда бот присылает сообщения (твой chat_id).
+  const CHAT_ID = "1503666976";
+
+  // Время перезарядки между отправками, секунды.
+  const COOLDOWN_SECONDS = 30;
+
+  // ============================================================
+
+  const LS_USER = "ping_user_id";
+  const LS_COOLDOWN = "ping_cooldown_until";
+
+  const body = document.body;
+  const modeBtn = document.getElementById("mode");
+  const presets = document.getElementById("presets");
+  const textEl = document.getElementById("text");
+  const sendBtn = document.getElementById("send");
+  const statusEl = document.getElementById("status");
+
+  // localStorage может быть недоступен (приватный режим) — не падаем
+  const store = {
+    get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+  };
+
+  // Постоянный номер друга, чтобы отличать отправителей
+  let userId = store.get(LS_USER);
+  if (!userId) {
+    userId = String(Math.floor(1000 + Math.random() * 9000));
+    store.set(LS_USER, userId);
+  }
+
+  let isPlay = false;
+  let sending = false;
+  let timer = null;
+
+  function setMode(play) {
+    isPlay = play;
+    body.classList.toggle("play", play);
+    modeBtn.setAttribute("aria-checked", String(play));
+    textEl.placeholder = play ? "Выбери фразу или напиши свою" : "Что передать?";
+  }
+  modeBtn.addEventListener("click", () => setMode(!isPlay));
+
+  presets.addEventListener("click", (e) => {
+    const chip = e.target.closest(".chip");
+    if (!chip) return;
+    textEl.value = chip.textContent.trim();
+    textEl.focus();
+    refresh();
+  });
+
+  textEl.addEventListener("input", refresh);
+
+  function remaining() {
+    const until = parseInt(store.get(LS_COOLDOWN) || "0", 10);
+    return Math.max(0, Math.ceil((until - Date.now()) / 1000));
+  }
+
+  // Единое место, где обновляется состояние кнопки
+  function refresh() {
+    const left = remaining();
+    if (left > 0) {
+      sendBtn.disabled = true;
+      sendBtn.textContent = "Перезарядка: " + left + "с";
+      if (!timer) timer = setInterval(refresh, 250);
+      return;
+    }
+    if (timer) { clearInterval(timer); timer = null; }
+    sendBtn.textContent = sending ? "Отправляю…" : "Отправить";
+    sendBtn.disabled = sending || textEl.value.trim() === "";
+  }
+
+  function say(msg, kind) {
+    statusEl.textContent = msg;
+    statusEl.className = "status" + (kind ? " " + kind : "");
+  }
+
+  sendBtn.addEventListener("click", async () => {
+    const msg = textEl.value.trim();
+    if (!msg || sending || remaining() > 0) return;
+
+    // Формат лога в Telegram
+    const text =
+      "[ID]: User #" + userId + "\n" +
+      "[Тема]: " + (isPlay ? "Игра" : "Обычное сообщение") + "\n" +
+      "[Сообщение]: " + msg;
+
+    sending = true;
+    say("");
+    refresh();
+
+    try {
+      const res = await fetch("https://api.telegram.org/bot" + BOT_TOKEN + "/sendMessage", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chat_id: CHAT_ID, text: text })
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) throw new Error(data.description || "Ошибка " + res.status);
+
+      textEl.value = "";
+      store.set(LS_COOLDOWN, String(Date.now() + COOLDOWN_SECONDS * 1000));
+      say("Отправлено.", "ok");
+    } catch (err) {
+      say("Не отправилось. Проверь интернет и попробуй ещё раз.", "err");
+      console.error(err);
+    } finally {
+      sending = false;
+      refresh();
+    }
+  });
+
+  // Восстановить таймер после перезагрузки страницы
+  refresh();
+</script>
+</body>
+</html>
